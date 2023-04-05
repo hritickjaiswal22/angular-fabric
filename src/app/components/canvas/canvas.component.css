@@ -1,0 +1,9 @@
+#canvas {
+  border: 1px solid;
+}
+
+.btnContainer {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}

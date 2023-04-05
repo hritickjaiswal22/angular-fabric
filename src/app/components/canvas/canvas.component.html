@@ -1,0 +1,18 @@
+<canvas id="canvas"></canvas>
+
+<section class="btnContainer">
+  <button (click)="addRect()">Add Rect</button>
+  <button (click)="addCircle()">Add Circle</button>
+  <button (click)="toGreen()">To Green</button>
+  <button (click)="toBlue()">To Blue</button>
+  <button (click)="addText()">Add Text</button>
+  <button (click)="bold()">Bold</button>
+  <button (click)="underline()">Underline</button>
+  <button (click)="italicize()">Italicize</button>
+  <button (click)="addImage()">Add Image</button>
+  <input type="file" (change)="uploadImage($event)" />
+  <button (click)="rotateLeft()">Rotate Left</button>
+  <button (click)="rotateRight()">Rotate Right</button>
+  <button (click)="remove()">Delete</button>
+  <button (click)="undo()">Undo</button>
+</section>
