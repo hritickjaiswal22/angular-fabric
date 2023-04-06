@@ -143,4 +143,27 @@ export class CanvasComponent {
     if (this.canvas._objects.length) this.canvas._objects.pop();
     this.canvas.renderAll();
   }
+
+  export() {
+    const json = this.canvas.toJSON(['wizard', 'hobbit']);
+
+    localStorage.setItem('canvas', JSON.stringify(json));
+
+    console.log(json);
+  }
+
+  loadFromLocalStorage() {
+    const canvasRef = this.canvas;
+    const json = JSON.parse(localStorage.getItem('canvas') || '');
+
+    canvasRef.loadFromJSON(
+      json,
+      function () {
+        canvasRef.renderAll();
+      },
+      function (o: any, object: any) {
+        console.log(o, object);
+      }
+    );
+  }
 }
