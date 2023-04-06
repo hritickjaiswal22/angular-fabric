@@ -9,12 +9,33 @@ import { fabric } from 'fabric';
 export class CanvasComponent {
   canvas: any = null;
   imageUrl: any = 'assets/demo.jpg';
+  newleft = 0;
+  state: any = [];
+  mods = 0;
 
   ngOnInit() {
     this.canvas = new fabric.Canvas('canvas', {
       width: 800,
       height: 600,
     });
+    this.canvas.counter = 0;
+    this.canvas.selection = false;
+    this.newleft = 0;
+    this.state = [];
+    this.mods = 0;
+    const updateModificationsRef = this.updateModifications;
+    const ref = this;
+
+    this.canvas.on(
+      'object:modified',
+      () => {
+        updateModificationsRef.call(ref, true);
+      },
+      'object:added',
+      () => {
+        updateModificationsRef.call(ref, true);
+      }
+    );
   }
 
   addRect() {
@@ -28,6 +49,10 @@ export class CanvasComponent {
 
     this.canvas.add(rect);
     this.canvas.renderAll();
+
+    this.updateModifications(true);
+    this.canvas.counter++;
+    this.newleft += 100;
   }
 
   addCircle() {
@@ -40,6 +65,10 @@ export class CanvasComponent {
 
     this.canvas.add(circle);
     this.canvas.renderAll();
+
+    this.updateModifications(true);
+    this.canvas.counter++;
+    this.newleft += 100;
   }
 
   addText() {
@@ -52,10 +81,15 @@ export class CanvasComponent {
       originY: 'center',
     });
     this.canvas.add(textbox);
+
+    this.updateModifications(true);
+    this.canvas.counter++;
+    this.newleft += 100;
   }
 
   addImage() {
     const canvasRef = this.canvas;
+    const ref = this;
 
     fabric.Image.fromURL(this.imageUrl, function (myImg) {
       //i create an extra var for to change some image properties
@@ -68,6 +102,10 @@ export class CanvasComponent {
         originY: 'center',
       });
       canvasRef.add(img1);
+
+      ref.updateModifications(true);
+      ref.canvas.counter++;
+      ref.newleft += 100;
     });
   }
 
@@ -91,6 +129,10 @@ export class CanvasComponent {
   toBlue() {
     this.canvas.getActiveObject()?.set('fill', 'blue');
     this.canvas.renderAll();
+
+    this.updateModifications(true);
+    this.canvas.counter++;
+    this.newleft += 100;
   }
 
   bold() {
@@ -139,11 +181,6 @@ export class CanvasComponent {
     this.canvas.remove(this.canvas.getActiveObject());
   }
 
-  undo() {
-    if (this.canvas._objects.length) this.canvas._objects.pop();
-    this.canvas.renderAll();
-  }
-
   export() {
     const json = this.canvas.toJSON(['wizard', 'hobbit']);
 
@@ -165,5 +202,45 @@ export class CanvasComponent {
         console.log(o, object);
       }
     );
+  }
+
+  updateModifications(savehistory: boolean) {
+    if (savehistory === true) {
+      const myjson = JSON.stringify(this.canvas);
+      this.state.push(myjson);
+    }
+  }
+
+  undo() {
+    if (this.mods < this.state.length) {
+      this.canvas.clear().renderAll();
+      this.canvas.loadFromJSON(
+        this.state[this.state.length - 1 - this.mods - 1]
+      );
+      this.canvas.renderAll();
+      //console.log("geladen " + (state.length-1-mods-1));
+      //console.log("state " + state.length);
+      this.mods += 1;
+      //console.log("mods " + mods);
+    }
+  }
+
+  redo() {
+    if (this.mods > 0) {
+      this.canvas.clear().renderAll();
+      this.canvas.loadFromJSON(
+        this.state[this.state.length - 1 - this.mods + 1]
+      );
+      this.canvas.renderAll();
+      //console.log("geladen " + (state.length-1-mods+1));
+      this.mods -= 1;
+      //console.log("state " + state.length);
+      //console.log("mods " + mods);
+    }
+  }
+
+  clearcan() {
+    this.canvas.clear().renderAll();
+    this.newleft = 0;
   }
 }
