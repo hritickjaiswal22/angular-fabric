@@ -12,6 +12,11 @@ export class CanvasComponent {
   newleft = 0;
   state: any = [];
   mods = 0;
+  dummyImages = [
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpngGRjYX1ca7qAADU3K6eGLj7ShQE3L2otdzfryl_Y9Ht2QRoQKYQbsXd36XIxMbYOw0&usqp=CAU',
+    'https://static.javatpoint.com/csspages/images/css-tutorial.png',
+    'https://static.javatpoint.com/images/javascript/javascript_logo.png',
+  ];
 
   ngOnInit() {
     this.canvas = new fabric.Canvas('canvas', {
@@ -40,6 +45,8 @@ export class CanvasComponent {
 
   addRect() {
     const rect = new fabric.Rect({
+      top: this.canvas.height / 2,
+      left: this.canvas.width / 2,
       width: 100,
       height: 100,
       fill: 'red',
@@ -57,6 +64,8 @@ export class CanvasComponent {
 
   addCircle() {
     const circle = new fabric.Circle({
+      top: this.canvas.height / 2,
+      left: this.canvas.width / 2,
       radius: 50,
       fill: 'red',
       originX: 'center',
@@ -73,8 +82,8 @@ export class CanvasComponent {
 
   addText() {
     const textbox = new fabric.Textbox('Lorum ipsum dolor sit amet', {
-      left: 50,
-      top: 50,
+      top: this.canvas.height / 2,
+      left: this.canvas.width / 2,
       width: 150,
       fontSize: 20,
       originX: 'center',
@@ -87,15 +96,15 @@ export class CanvasComponent {
     this.newleft += 100;
   }
 
-  addImage() {
+  addImage(url: string) {
     const canvasRef = this.canvas;
     const ref = this;
 
-    fabric.Image.fromURL(this.imageUrl, function (myImg) {
+    fabric.Image.fromURL(url || this.imageUrl, function (myImg) {
       //i create an extra var for to change some image properties
       const img1 = myImg.set({
-        left: 0,
-        top: 0,
+        top: ref.canvas.height / 2,
+        left: ref.canvas.width / 2,
         // width: 400,
         // height: 250,
         originX: 'center',
@@ -116,7 +125,7 @@ export class CanvasComponent {
       reader.onload = (e) => {
         this.imageUrl = e.target?.result;
 
-        this.addImage();
+        this.addImage('');
       };
     }
   }
@@ -242,5 +251,57 @@ export class CanvasComponent {
   clearcan() {
     this.canvas.clear().renderAll();
     this.newleft = 0;
+  }
+
+  addImages() {
+    const json = JSON.parse(localStorage.getItem('canvas') || '');
+    if (json) {
+      const arr = json.objects;
+      const canvasRef = this.canvas;
+
+      let i = 0;
+
+      for (const obj of arr) {
+        if (obj.type === 'image') {
+          obj.src = this.dummyImages[i];
+          i++;
+        }
+      }
+
+      const ref = this;
+      const promises = [];
+
+      while (i < this.dummyImages.length) {
+        const promise = new Promise((resolve) => {
+          fabric.Image.fromURL(this.dummyImages[i], function (myImg) {
+            //i create an extra var for to change some image properties
+            const img1 = myImg.set({
+              top: ref.canvas.height / 2,
+              left: ref.canvas.width / 2,
+              // width: 400,
+              // height: 250,
+              originX: 'center',
+              originY: 'center',
+            });
+            resolve(JSON.parse(JSON.stringify(img1)));
+          });
+        });
+        promises.push(promise);
+        i++;
+      }
+
+      Promise.all(promises).then((data) => {
+        json.objects = [...json.objects, ...data];
+        canvasRef.loadFromJSON(
+          json,
+          function () {
+            canvasRef.renderAll();
+          },
+          function (o: any, object: any) {
+            // console.log(o, object);
+          }
+        );
+      });
+    }
   }
 }
