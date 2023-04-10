@@ -298,7 +298,7 @@ export class CanvasComponent {
             canvasRef.renderAll();
           },
           function (o: any, object: any) {
-            // console.log(o, object);
+            console.log(json);
           }
         );
       });
@@ -353,5 +353,19 @@ export class CanvasComponent {
       canvasRef.add(textbox);
       canvasRef.renderAll();
     });
+  }
+
+  canvasToImg() {
+    // this.canvas.deactivateAll().renderAll();
+    const input = document.getElementById('canImg') as
+      | HTMLInputElement
+      | {
+          src: '';
+          width: 0;
+          height: 0;
+        };
+    input.width = 256;
+    input.height = 256;
+    input.src = this.canvas.toDataURL('png', 0.5);
   }
 }
