@@ -304,4 +304,60 @@ export class CanvasComponent {
       });
     }
   }
+
+  addSvg() {
+    const canvasRef = this.canvas;
+    const ref = this;
+
+    fabric.Image.fromURL('assets/icon.png' || this.imageUrl, function (myImg) {
+      //i create an extra var for to change some image properties
+      const img1 = myImg.set({
+        top: ref.canvas.height / 2,
+        left: ref.canvas.width / 2,
+        // width: 400,
+        // height: 250,
+        originX: 'center',
+        originY: 'center',
+      });
+      img1.setControlsVisibility({
+        mt: false, // middle top disable
+        mb: false, // midle bottom
+        ml: false, // middle left
+        mr: false, // I think you get it
+      });
+      canvasRef.add(img1);
+
+      Object.assign(img1, { id: 'workarea' });
+
+      const textbox = Object.assign(
+        new fabric.Textbox('Add message here', {
+          top: img1.top,
+          left: (img1.left || 0) + 100,
+          width: 150,
+          fontSize: 20,
+          originX: 'center',
+          originY: 'center',
+        }),
+        { id: 'workarea' }
+      );
+      textbox.visible = false;
+
+      img1.on('mousedblclick', (e) => {
+        const truth = textbox.visible;
+        textbox.visible = !truth;
+        canvasRef.renderAll();
+      });
+      img1.on('moving', (e) => {
+        // console.log('Moving');
+
+        textbox.top = img1.top;
+        textbox.left = (img1.left || 0) + 120;
+        canvasRef.renderAll();
+      });
+
+      canvasRef.add(img1);
+      canvasRef.add(textbox);
+      canvasRef.renderAll();
+    });
+  }
 }
