@@ -319,12 +319,7 @@ export class CanvasComponent {
         originX: 'center',
         originY: 'center',
       });
-      img1.setControlsVisibility({
-        mt: false, // middle top disable
-        mb: false, // midle bottom
-        ml: false, // middle left
-        mr: false, // I think you get it
-      });
+      img1.hasControls = false;
       canvasRef.add(img1);
 
       Object.assign(img1, { id: 'workarea' });
@@ -348,10 +343,9 @@ export class CanvasComponent {
         canvasRef.renderAll();
       });
       img1.on('moving', (e) => {
-        // console.log('Moving');
-
         textbox.top = img1.top;
         textbox.left = (img1.left || 0) + 120;
+        textbox.setCoords();
         canvasRef.renderAll();
       });
 
